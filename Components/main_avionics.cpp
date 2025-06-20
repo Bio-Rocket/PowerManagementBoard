@@ -20,7 +20,6 @@
 #include "FlightTask.hpp"
 #include "DebugTask.hpp"
 #include "PMBProtocolTask.hpp"
-#include "WatchdogTask.hpp"
 #include "TelemetryTask.hpp"
 
 /* Global Variables ------------------------------------------------------------------*/

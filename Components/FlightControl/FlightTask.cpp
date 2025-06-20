@@ -7,8 +7,8 @@
 #include "FlightTask.hpp"
 #include "GPIO.hpp"
 #include "SystemDefines.hpp"
-#include "DMBProtocolTask.hpp"
-#include "RocketSM.hpp"
+#include "PMBProtocolTask.hpp"
+#include "BatterySM.hpp"
 
 /**
  * @brief Constructor for FlightTask
@@ -44,12 +44,6 @@ void FlightTask::InitTask()
  */
 void FlightTask::Run(void * pvParams)
 {
-    //Initialize SPI Flash
-    SPIFlash::Inst().Init();
-
-    //Initialize the Timer Transitions
-    TimerTransitions::Inst().Setup();
-
     //Get the latest state from the system storage
     SystemState sysState;
     bool stateReadSuccess = SystemStorage::Inst().Read(sysState);
@@ -67,9 +61,6 @@ void FlightTask::Run(void * pvParams)
     }
     else {
         // Failed to read state, start in default state
-        //TODO: Should implement a backup SimpleSectorStorage that is written to/read only once
-        //TODO: where after the LAUNCH state, the default state becomes RS_COAST (or whatever is safest)
-        //TODO: based on a unique key being written to the SSStorage
         rsm_ = new RocketSM(RS_ABORT, true);
     }
 
@@ -93,7 +84,7 @@ void FlightTask::Run(void * pvParams)
         // or maybe HID (Human Interface Device) task that handles both updating buzzer frequencies and LED states.
 
 
-        //Process commands in blocking mode (TODO: Change to instant-processing once complete HID/DisplayTask)
+        //Process commands in blocking mode
         Command cm;
         bool res = qEvtQueue->ReceiveWait(cm);
         if(res)
@@ -101,35 +92,6 @@ void FlightTask::Run(void * pvParams)
 
         //osDelay(FLIGHT_PHASE_DISPLAY_FREQ);
 
-        //// Half the buzzer frequency for flight phase beeps
-        //// (slightly less important, and only a bit quieter)
-        //htim2.Init.Prescaler = ((htim2.Init.Prescaler + 1) * 2) - 1;
-        //if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
-        //    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-        //    osDelay(BUZZER_ERR_PERIOD);
-        //    HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
-        //}
-
-        //// Beep n times for flight phase n, and blink LED 1
-        //for (int i = -1; i < getCurrentFlightPhase(); i++) {
-        //    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-        //    HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, 1);
-        //    osDelay(FLIGHT_PHASE_BLINK_FREQ);
-
-        //    HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
-        //    HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, 0);
-        //    osDelay(FLIGHT_PHASE_BLINK_FREQ);
-        //}
-
-        //// Return the buzzer to its optimal frequency for message beeps
-        //htim2.Init.Prescaler = ((htim2.Init.Prescaler + 1) / 2) - 1;
-        //if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
-        //    HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-        //    osDelay(BUZZER_ERR_PERIOD);
-        //    HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
-        //}
-
-        // TODO: Message beeps
     }
 }
 
@@ -156,7 +118,7 @@ void FlightTask::SendRocketState()
 {
     // For testing, generate a PROTOBUF message and send it to the Protocol Task
     Proto::ControlMessage msg;
-    msg.set_source(Proto::Node::NODE_DMB);
+    msg.set_source(Proto::Node::NODE_PMB);
     msg.set_target(Proto::Node::NODE_RCU);
     Proto::SystemState stateMsg;
     if(firstStateSent_ < FLIGHT_TASK_BOOTUP_TELE_CYCLES) {

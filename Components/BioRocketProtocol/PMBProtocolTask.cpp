@@ -8,7 +8,6 @@
 
 #include "FlightTask.hpp"
 #include "ReadBufferFixedSize.h"
-#include "WatchdogTask.hpp"
 #include "TelemetryTask.hpp"
 
 /**

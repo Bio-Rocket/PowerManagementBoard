@@ -7,15 +7,8 @@
 #include "TelemetryTask.hpp"
 #include "GPIO.hpp"
 #include "SystemDefines.hpp"
-#include "DMBProtocolTask.hpp"
-
-#include "BarometerTask.hpp"
-#include "IMUTask.hpp"
+#include "PMBProtocolTask.hpp"
 #include "FlightTask.hpp"
-#include "PressureTransducerTask.hpp"
-#include "BatteryTask.hpp"
-#include "GPSTask.hpp"
-#include "WatchdogTask.hpp"
 
 /**
  * @brief Constructor for TelemetryTask

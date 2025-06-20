@@ -8,7 +8,7 @@
 #define SOAR_FLIGHTTASK_HPP_
 #include "Task.hpp"
 #include "SystemDefines.hpp"
-#include "RocketSM.hpp"
+#include "BatterySM.hpp"
 
 /* Macros/Enums ------------------------------------------------------------*/
 constexpr uint16_t FLIGHT_TASK_BOOTUP_TELE_CYCLES = 20;
